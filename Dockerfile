@@ -1,0 +1,27 @@
+FROM ubuntu:latest
+
+# install tools
+RUN set -eux; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		openssh-server systemd \
+		sudo bash nano git curl wget less htop \
+		python3 pip \
+		nodejs npm \
+		build-essential rustc cargo
+
+# create user
+ARG USERNAME=player
+ARG PASSWORD
+RUN useradd -m $USERNAME && echo "$USERNAME:$PASSWORD" | chpasswd && adduser $USERNAME sudo && usermod -s /usr/bin/bash $USERNAME
+VOLUME /home/$USERNAME
+
+# configure SSH
+RUN mkdir /var/run/sshd
+RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+RUN echo "AllowUsers $USERNAME" >> /etc/ssh/sshd_config
+RUN echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+EXPOSE 22
+
+# run
+CMD ["/usr/sbin/sshd", "-D"]
