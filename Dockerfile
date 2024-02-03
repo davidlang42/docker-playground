@@ -13,12 +13,6 @@ RUN set -eux; \
 # create user
 ARG USERNAME=player
 RUN useradd -m $USERNAME && adduser $USERNAME sudo && usermod -s /usr/bin/bash $USERNAME
-
-# copy files
-COPY --chmod=500 docker_entrypoint.sh /
-WORKDIR /home/$USERNAME
-COPY --chown=$USERNAME:$USERNAME --chmod=770 run_on_startup.sh .
-COPY --chown=$USERNAME:$USERNAME --chmod=660 install_packages .
 VOLUME /home/$USERNAME
 
 # configure SSH
@@ -28,6 +22,10 @@ RUN echo "AllowUsers $USERNAME" >> /etc/ssh/sshd_config
 RUN echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 EXPOSE 22
 
+# copy files
+COPY --chmod=500 docker_entrypoint.sh /
+
 # run
 ENV PLAYER_USERNAME=${USERNAME}
+WORKDIR /home/$USERNAME
 ENTRYPOINT ["/docker_entrypoint.sh"] # requires environment var PLAYER_PASSWORD to be set
