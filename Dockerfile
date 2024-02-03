@@ -13,6 +13,7 @@ RUN set -eux; \
 # create user
 ARG USERNAME=player
 RUN useradd -m $USERNAME && adduser $USERNAME sudo && usermod -s /usr/bin/bash $USERNAME
+RUN chown $USERNAME:$USERNAME /home/$USERNAME
 VOLUME /home/$USERNAME
 
 # configure SSH
