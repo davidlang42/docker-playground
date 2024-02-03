@@ -5,7 +5,7 @@ RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
 		openssh-server \
-		sudo bash nano git curl wget less htop zip unzip gzip jq \
+		sudo bash nano git curl wget less htop zip unzip gzip jq iputils-ping \
 		python3 pip \
 		nodejs npm \
 		build-essential rustc cargo
