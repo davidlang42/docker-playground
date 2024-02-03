@@ -10,16 +10,12 @@ RUN set -eux; \
 		nodejs npm \
 		build-essential rustc cargo
 
-# copy files
+# copy root files
 COPY docker_entrypoint.sh /root
 
 # create user
 ARG USERNAME=player
-ARG PASSWORD
-RUN useradd -m $USERNAME && echo "$USERNAME:$PASSWORD" | chpasswd && adduser $USERNAME sudo && usermod -s /usr/bin/bash $USERNAME
-WORKDIR /home/$USERNAME
-COPY startup.sh .
-VOLUME /home/$USERNAME
+RUN useradd -m $USERNAME && adduser $USERNAME sudo && usermod -s /usr/bin/bash $USERNAME
 
 # configure SSH
 RUN mkdir /var/run/sshd
@@ -28,5 +24,14 @@ RUN echo "AllowUsers $USERNAME" >> /etc/ssh/sshd_config
 RUN echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 EXPOSE 22
 
+# copy user files
+WORKDIR /home/$USERNAME
+USER $USERNAME
+COPY run_on_startup.sh .
+COPY install_packages .
+VOLUME /home/$USERNAME
+
 # run
-CMD ["/root/docker_entrypoint.sh"]
+USER root
+ENV PLAYER_USERNAME=${USERNAME}
+ENTRYPOINT ["/root/docker_entrypoint.sh"] # requires environment var PLAYER_PASSWORD to be set
